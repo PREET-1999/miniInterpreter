@@ -4,7 +4,9 @@ import src.lox.Token;
 import static src.lox.TokenType.*; //static added to be able to use without ToeknType.PLUS""
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Scanner {
     private final String source;
@@ -13,10 +15,48 @@ public class Scanner {
     private int start = 0;
     private int current = 0;
     private int lineNumber = 1;
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
 
     Scanner(String source) {
         this.source = source;
 
+    }
+
+    static boolean isDigit(char c) {
+
+        return c >= '0' && c <= '9';
+    }
+
+    static boolean isAlpha(char c) {
+
+        return (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                c == '_';
+
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
     private char getCharacterFromSourceAndStep() {
@@ -53,7 +93,7 @@ public class Scanner {
                 getCharacterFromSourceAndStep();
                 String literal = source.substring(start, current);
                 // System.out.println("Found string literal "+ literal);
-                addToken(STRING , literal);
+                addToken(STRING, literal);
                 return;
             }
             // System.out.println(peek()); // just to see what all Im consuming
@@ -61,6 +101,44 @@ public class Scanner {
         }
         Lox.reportError(lineNumber, "Unterminated String.");
         // char c = getCharacterFromSourceAndStep();
+    }
+
+    void identifier() {
+        while (!reachedEOF() && isAlphaNumeric(peek())) {
+            getCharacterFromSourceAndStep();
+        }
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+        if (type == null)
+            type = IDENTIFIER;
+        addToken(type);
+
+    }
+
+    private char peekNext() {
+        if (current + 1 >= source.length())
+            return '\0';
+        return source.charAt(current + 1);
+    }
+
+    void findNumber() {
+        System.out.println("findingNum");
+        int foundDecimalPoint = 0;
+        while (!reachedEOF() && isDigit(peek()) && foundDecimalPoint <= 1) {
+            System.out.println(peek());
+            if (peekNext() == '.') {
+
+                System.out.println(".");
+
+                foundDecimalPoint++;
+                getCharacterFromSourceAndStep();
+
+            }
+            getCharacterFromSourceAndStep();
+
+        }
+        System.out.println(Double.parseDouble(source.substring(start, current)));
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
     private void scanToken() {
@@ -139,24 +217,38 @@ public class Scanner {
             case '\n':
                 lineNumber++;
                 break;
+
             default:
-                Lox.reportError(lineNumber, "Unexpected character."); // the erroneous character is still consumed by
-                                                                      // the earlier call to
-                                                                      // getCharacterFromSourceAndStep()
+                if (isDigit(c)) {
+
+                    findNumber();
+                } else if (isAlpha(c)) {
+                    identifier();
+                } else {
+                    Lox.reportError(lineNumber, "Unexpected character."); // the erroneous character is still consumed
+                                                                          // by
+                                                                          // the earlier call to
+                                                                          // getCharacterFromSourceAndStep()
+
+                }
                 break;
 
         }
     }
 
-    void addToken(TokenType tokenType) {
-        Token token = new Token(tokenType, "", lineNumber);
-        tokens.add(token);
+    private void addToken(TokenType type) {
+        addToken(type, null);
     }
 
-    void addToken(TokenType tokenType, String lexeme) {
-        Token token = new Token(tokenType, lexeme, lineNumber);
-        tokens.add(token);
+    private void addToken(TokenType type, Object literal) {
+        String text = source.substring(start, current);
+        tokens.add(new Token(type, text, literal, lineNumber));
     }
+
+    // void addToken(TokenType tokenType, String lexeme) {
+    // Token token = new Token(tokenType, lexeme, lineNumber);
+    // tokens.add(token);
+    // }
 
     List<Token> scanTokens() {
 
