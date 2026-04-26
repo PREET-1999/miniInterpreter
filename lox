@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Exit on error
+set -e
+
+# Check if at least one argument (script or REPL) is provided
+if [ "$#" -eq 0 ]; then
+  echo "Usage: ./lox.sh <file.lox>"
+  exit 1
+fi
+
+# Run the Java program
+java -cp build src.lox.Lox "$@"
