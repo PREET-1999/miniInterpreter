@@ -121,24 +121,41 @@ public class Scanner {
         return source.charAt(current + 1);
     }
 
+    // (incorrectly scans numbers, allows 12. and disallows 1.234)
+    // void findNumber() {
+    // System.out.println("findingNum");
+    // int foundDecimalPoint = 0;
+    // while (!reachedEOF() && isDigit(peek()) && foundDecimalPoint <= 1) {
+    // System.out.println(peek());
+    // if (peekNext() == '.') {
+
+    // System.out.println(".");
+
+    // foundDecimalPoint++;
+    // getCharacterFromSourceAndStep();
+
+    // }
+    // getCharacterFromSourceAndStep();
+
+    // }
+    // System.out.println(Double.parseDouble(source.substring(start, current)));
+    // addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    // }
+
     void findNumber() {
-        System.out.println("findingNum");
-        int foundDecimalPoint = 0;
-        while (!reachedEOF() && isDigit(peek()) && foundDecimalPoint <= 1) {
-            System.out.println(peek());
-            if (peekNext() == '.') {
-
-                System.out.println(".");
-
-                foundDecimalPoint++;
-                getCharacterFromSourceAndStep();
-
-            }
+        while (isDigit(peek()))
             getCharacterFromSourceAndStep();
 
+        if (peek() == '.' && isDigit(peekNext())) {
+            // consume the "."
+            getCharacterFromSourceAndStep();
+
+            while (isDigit(peek()))
+                getCharacterFromSourceAndStep();
+
         }
-        System.out.println(Double.parseDouble(source.substring(start, current)));
-        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+        addToken(NUMBER,
+        Double.parseDouble(source.substring(start, current)));
     }
 
     private void scanToken() {
