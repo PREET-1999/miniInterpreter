@@ -62,16 +62,25 @@ public class Lox {
     }
   }
   public static void main(String[] args)  throws IOException{
-    
-    if (args.length > 1) {
-      System.out.println("Usage: jlox [script]");
-      System.exit(64); 
-    } else if (args.length == 1) {
-        //run the file supplied 
-        runInputFile(args[0]);
-    } else {
-      //REPL 
-      startREPL();
-    }
+     Expr expression = new Expr.Binary(
+        new Expr.Unary(
+            new Token(TokenType.MINUS, "-", null, 1),
+            new Expr.Literal(123)),
+        new Token(TokenType.STAR, "*", null, 1),
+        new Expr.Grouping(
+            new Expr.Literal(45.67)));
+
+    System.out.println(new ASTPrinter().print(expression));
+
+    // if (args.length > 1) {
+    //   System.out.println("Usage: jlox [script]");
+    //   System.exit(64); 
+    // } else if (args.length == 1) {
+    //     //run the file supplied 
+    //     runInputFile(args[0]);
+    // } else {
+    //   //REPL 
+    //   startREPL();
+    // }
   }
 }
