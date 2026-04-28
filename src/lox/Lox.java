@@ -10,12 +10,13 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import src.lox.Scanner;
+
 public class Lox {
   /* error reporting */
   static boolean error = false;
   static boolean runTimeError = false;
 
-  static void run(String source){
+  static void run(String source) {
     // lets scan and generate tokens
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
@@ -24,63 +25,78 @@ public class Lox {
     for (Token token : tokens) {
       System.out.println(token);
     }
-    if(error)return;
 
-    
+    Parser parser = new Parser(tokens);
+    Expr expression = parser.parse();
+
+    if (error)
+      return;
+    System.out.println(new ASTPrinter().print(expression));
+
   }
 
-  static void runInputFile(String fileName)throws IOException{// due to error: unreported exception IOException; must be caught or declared to be thrown
+  static void runInputFile(String fileName) throws IOException {// due to error: unreported exception IOException; must
+                                                                // be caught or declared to be thrown
 
-    //check if file is present 
+    // check if file is present
     Path file = Paths.get(fileName);
 
-    //byte is 8bit signed 2's complemnemnt int
+    // byte is 8bit signed 2's complemnemnt int
     byte[] bytes = Files.readAllBytes(file);
 
-    //convert this byte array to String using specific CharacterSet;
+    // convert this byte array to String using specific CharacterSet;
     run(new String(bytes, Charset.defaultCharset()));
-    if(error){
+    if (error) {
       System.exit(65);
     }
   }
 
-  static void reportError(int line, String message){
-    System.err.println("[Error] "+ " " + message);
+  static void reportError(int line, String message) {
+    System.err.println("[Error] " + " " + message);
     error = true;
   }
-  private static void startREPL() throws IOException{  // due to error: unreported exception IOException; must be caught or declared to be thrown
+
+  static void error(Token token, String message) {
+    if (token.type == TokenType.EOF) {
+      reportError(token.line, message);
+    } else {
+      reportError(token.line, message);
+    }
+  }
+
+  private static void startREPL() throws IOException { // due to error: unreported exception IOException; must be caught
+                                                       // or declared to be thrown
 
     InputStreamReader input = new InputStreamReader(System.in);
     BufferedReader reader = new BufferedReader(input);
 
-    while(true) { 
+    while (true) {
       System.out.print("[lox]>>  ");
       String line = reader.readLine();
-      if (line == null) break; //on pressing ctrl-D , readLine returns NULL (EOF signal is sent to progeam)
+      if (line == null)
+        break; // on pressing ctrl-D , readLine returns NULL (EOF signal is sent to progeam)
       run(line);
-      error = false; //for next >> , reset error state
+      error = false; // for next >> , reset error state
     }
   }
-  public static void main(String[] args)  throws IOException{
-     Expr expression = new Expr.Binary(
-        new Expr.Unary(
-            new Token(TokenType.MINUS, "-", null, 1),
-            new Expr.Literal(123)),
-        new Token(TokenType.STAR, "*", null, 1),
-        new Expr.Grouping(
-            new Expr.Literal(45.67)));
 
-    System.out.println(new ASTPrinter().print(expression));
+  public static void main(String[] args) throws IOException {
+    // Expr expression = new Expr.Binary(
+    //     new Expr.Binary(new Expr.Literal(1), new Token(TokenType.PLUS, "+", null, 1), new Expr.Literal(2)),
+    //     new Token(TokenType.STAR, "*", null, 1),
+    //     new Expr.Binary(new Expr.Literal(4), new Token(TokenType.MINUS, "-", null, 1), new Expr.Literal(3)));
 
-    // if (args.length > 1) {
-    //   System.out.println("Usage: jlox [script]");
-    //   System.exit(64); 
-    // } else if (args.length == 1) {
-    //     //run the file supplied 
-    //     runInputFile(args[0]);
-    // } else {
-    //   //REPL 
-    //   startREPL();
-    // }
+    // System.out.println(new ASTPrinter().print(expression));
+
+    if (args.length > 1) {
+    System.out.println("Usage: jlox [script]");
+    System.exit(64);
+    } else if (args.length == 1) {
+    //run the file supplied
+    runInputFile(args[0]);
+    } else {
+    //REPL
+    startREPL();
+    }
   }
 }
