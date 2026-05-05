@@ -32,6 +32,7 @@ public class Lox {
     if (error)
       return;
     // System.out.println(new ASTPrinter().print(expression));
+    System.out.println(new ExprEvaluator().interpret(expression));
 
   }
 
