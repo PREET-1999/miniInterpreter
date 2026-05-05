@@ -31,7 +31,7 @@ public class Lox {
 
     if (error)
       return;
-    System.out.println(new ASTPrinter().print(expression));
+    // System.out.println(new ASTPrinter().print(expression));
 
   }
 
@@ -57,6 +57,7 @@ public class Lox {
   }
 
   static void error(Token token, String message) {
+    System.out.println("in error token is"+token);
     if (token.type == TokenType.EOF) {
       reportError(token.line, message);
     } else {

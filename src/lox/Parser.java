@@ -44,8 +44,10 @@ public class Parser {
 
     // equality → comparison ( ( "!=" | "==" ) comparison )* ;
     private Expr equality() {
+        System.out.println("Equality -> I was called");
         Expr expr = comparision();
 
+        System.out.println(" Equality ==| !== ");
         while (matchThenStep(NOT_EQUAL, EQUAL_EQUAL)) {
             Token operator = previous();
             Expr right = comparision();
@@ -57,6 +59,8 @@ public class Parser {
 
     // comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
     private Expr comparision() {
+        System.out.println("Comparision -> I was called");
+
         Expr expr = term();
 
         while (matchThenStep(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
@@ -69,6 +73,8 @@ public class Parser {
     }
 
     private Expr term() {
+        System.out.println("term -> I was called");
+
         Expr expr = factor();
 
         while (matchThenStep(MINUS, PLUS)) {
@@ -81,6 +87,8 @@ public class Parser {
     }
 
     private Expr factor() {
+        System.out.println("factor -> I was called");
+
         Expr expr = unary();
 
         while (matchThenStep(SLASH, STAR)) {
@@ -95,6 +103,8 @@ public class Parser {
     // unary → ( "!" | "-" ) unary
     // | primary ;
     private Expr unary() {
+                System.out.println("unary -> I was called");
+
         if (matchThenStep(NOT, MINUS)) {
             Token operator = previous();
             Expr right = unary();
@@ -107,6 +117,8 @@ public class Parser {
     // primary → NUMBER | STRING | "true" | "false" | "nil"
     // | "(" expression ")" ;
     private Expr primary() {
+                        System.out.println("primary -> I was called");
+
         if (matchThenStep(FALSE))
             return new Expr.Literal(false);
         if (matchThenStep(TRUE))
@@ -123,7 +135,10 @@ public class Parser {
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
-        return null;//I dont think this is right to return
+        System.out.println("Im Primary but couldnt find anything, returning null\n");
+        // return null;// I dont think this is right to return...I was right, needed the below stmt
+            throw error(peek(), "Expected expression.");
+
     }
 
     private Token consume(TokenType type, String message) {
@@ -133,7 +148,7 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        Lox.reportError(token.line, message);
+        Lox.error(token,message);
         return new ParseError();
     }
 
@@ -172,4 +187,26 @@ public class Parser {
         // return peek().type == EOF;
         return current >= tokens.size();
     }
+
+    private void synchronize() {
+    getTokenAndStep();
+
+    while (!reachedEndOfTokens()) {
+      if (previous().type == SEMICOLON) return;
+
+      switch (peek().type) {
+        case CLASS:
+        case FUN:
+        case VAR:
+        case FOR:
+        case IF:
+        case WHILE:
+        case PRINT:
+        case RETURN:
+          return;
+      }
+
+    getTokenAndStep();
+    }
+  }
 }
