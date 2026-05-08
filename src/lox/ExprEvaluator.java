@@ -1,10 +1,38 @@
 package src.lox;
 
 public class ExprEvaluator implements Expr.Visitor<Object> {
-    public Object interpret(Expr expr) {
-        return expr.accept(this);
+    private static class ExprEvaluationError extends RuntimeException {
+    }
+
+    private ExprEvaluationError error(Token operator, String message) {
+        Lox.error(operator,message);
+        return new ExprEvaluationError();
+    }
+
+    private void checkNumberOperand(Token operator, Object operand) {
+        if (operand instanceof Double)
+            return;
+        throw error(operator, "Operand must be a number.");
+    }
+
+    private void checkNumberOperands(Token operator,
+            Object left, Object right) {
+        if (left instanceof Double && right instanceof Double)
+            return;
+
+        throw error(operator, "Operands must be numbers.");
+    }
+
+    public void interpret(Expr expr) {
+        try {
+            System.out.println("Exp eval start....");
+            System.out.println( expr.accept(this) );
+        } catch (ExprEvaluationError error) {
+        }
 
     }
+
+    
 
     public static void printObjectType(Object obj) {
         if (obj instanceof Double) {
@@ -37,9 +65,6 @@ public class ExprEvaluator implements Expr.Visitor<Object> {
         return a.equals(b);
     }
 
-    public Object evaluate(Expr expr) {
-        return interpret(expr);
-    }
 
     public Object taskOnBinaryExpr(Expr.Binary expr) {
         Object left = expr.left.accept(this);
@@ -51,15 +76,21 @@ public class ExprEvaluator implements Expr.Visitor<Object> {
             case EQUAL_EQUAL:
                 return isEqual(left, right);
             case GREATER:
+                checkNumberOperands(expr.operator, left, right);
                 return (double) left > (double) right;
             case GREATER_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
                 return (double) left >= (double) right;
             case LESS:
+                checkNumberOperands(expr.operator, left, right);
                 return (double) left < (double) right;
             case LESS_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
                 return (double) left <= (double) right;
-            case MINUS:
+            case MINUS: {
+                checkNumberOperands(expr.operator, left, right);
                 return (double) left - (double) right;
+            }
             case PLUS:
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
@@ -68,14 +99,14 @@ public class ExprEvaluator implements Expr.Visitor<Object> {
                 if (left instanceof String && right instanceof String) {
                     return (String) left + (String) right;
                 }
-
-                break;
+                throw error(expr.operator,
+                        "Operands must be two numbers or two strings.");
             case SLASH:
                 return (double) left / (double) right;
             case STAR:
                 return (double) left * (double) right;
         }
-        return null;// will lit even reach here??
+        return 100;// will it even reach here?? (yes if it matches none of the above)
 
     }
 
@@ -85,6 +116,7 @@ public class ExprEvaluator implements Expr.Visitor<Object> {
             case NOT:
                 return !isTruthy(unaryObj);
             case MINUS:
+                checkNumberOperand(expr.operator, unaryObj);
                 return -(double) unaryObj;
         }
         return unaryObj;
