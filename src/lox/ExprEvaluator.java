@@ -1,6 +1,6 @@
 package src.lox;
 
-public class ExprEvaluator implements Expr.Visitor<Object> {
+public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
     private static class ExprEvaluationError extends RuntimeException {
     }
 
@@ -64,8 +64,16 @@ public class ExprEvaluator implements Expr.Visitor<Object> {
 
         return a.equals(b);
     }
-
-
+@Override
+  public Void taskOnExpressionStmt(Stmt.Expression stmt) {
+    interpret(stmt.expression);
+    return null;
+  }
+@Override
+  public Void taskOnPrintStmt(Stmt.Print stmt) {
+    System.out.println(interpret(stmt.expression));
+    return null;
+  }
     public Object taskOnBinaryExpr(Expr.Binary expr) {
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);

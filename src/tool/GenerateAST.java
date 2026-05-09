@@ -50,6 +50,19 @@ public class GenerateAST {
                 }));
 
         generateAST(outputDir, "Expr", exprTypes);
+
+        //Now for stmt
+        List<ClassDef> stmtTypes = List.of(
+                new ClassDef("Expression", new Field[] {
+                        new Field("expression", "Expr")
+                }),
+                new ClassDef("Print", new Field[] {
+                        new Field("expression", "Expr")
+                })
+               );
+                generateAST(outputDir, "Stmt", stmtTypes);
+
+
     }
 
     static void defineVisitor(StringBuilder content, String baseName, List<ClassDef> types) {

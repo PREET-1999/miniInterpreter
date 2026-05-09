@@ -1,8 +1,17 @@
 package src.lox;
 
 import static src.lox.TokenType.*;
+import java.util.ArrayList;
 import java.util.List;
 /*
+program        → statement* EOF ;
+
+statement      → exprStmt
+               | printStmt ;
+
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+
 expression     → equality ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -36,6 +45,34 @@ public class Parser {
         } catch (ParseError error) {
             return null;
         }
+    }
+
+    List<Stmt> stmtList;
+
+    private void program() {
+        while (!reachedEndOfTokens()) {
+            stmtList.add(statement());
+        }
+    }
+
+    private Stmt statement() {
+        if (matchThenStep(PRINT))
+            return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt printStatement() {
+        // print was consumed by statement() already
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
     }
 
     private Expr expression() {
@@ -103,7 +140,7 @@ public class Parser {
     // unary → ( "!" | "-" ) unary
     // | primary ;
     private Expr unary() {
-                System.out.println("unary -> I was called");
+        System.out.println("unary -> I was called");
 
         if (matchThenStep(NOT, MINUS)) {
             Token operator = previous();
@@ -117,7 +154,7 @@ public class Parser {
     // primary → NUMBER | STRING | "true" | "false" | "nil"
     // | "(" expression ")" ;
     private Expr primary() {
-                        System.out.println("primary -> I was called");
+        System.out.println("primary -> I was called");
 
         if (matchThenStep(FALSE))
             return new Expr.Literal(false);
@@ -136,8 +173,9 @@ public class Parser {
             return new Expr.Grouping(expr);
         }
         System.out.println("Im Primary but couldnt find anything, returning null\n");
-        // return null;// I dont think this is right to return...I was right, needed the below stmt
-            throw error(peek(), "Expected expression.");
+        // return null;// I dont think this is right to return...I was right, needed the
+        // below stmt
+        throw error(peek(), "Expected expression.");
 
     }
 
@@ -148,7 +186,7 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        Lox.error(token,message);
+        Lox.error(token, message);
         return new ParseError();
     }
 
@@ -189,24 +227,25 @@ public class Parser {
     }
 
     private void synchronize() {
-    getTokenAndStep();
+        getTokenAndStep();
 
-    while (!reachedEndOfTokens()) {
-      if (previous().type == SEMICOLON) return;
+        while (!reachedEndOfTokens()) {
+            if (previous().type == SEMICOLON)
+                return;
 
-      switch (peek().type) {
-        case CLASS:
-        case FUN:
-        case VAR:
-        case FOR:
-        case IF:
-        case WHILE:
-        case PRINT:
-        case RETURN:
-          return;
-      }
+            switch (peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
 
-    getTokenAndStep();
+            getTokenAndStep();
+        }
     }
-  }
 }
