@@ -34,25 +34,37 @@ public class Parser {
 
     private final List<Token> tokens;
     private int current = 0;
+    List<Stmt> stmtList;
 
     Parser(List<Token> tokens) {
         this.tokens = tokens;
+        stmtList = new ArrayList<>();
     }
 
-    Expr parse() {
+    //before statements were added
+    // Expr parse() {
+    //     try {
+    //         return expression();
+    //     } catch (ParseError error) {
+    //         return null;
+    //     }
+    // }
+
+    //now since it has the correct starting symbol in grammer
+    List<Stmt> parse() {
         try {
-            return expression();
+            return program();
         } catch (ParseError error) {
             return null;
         }
     }
 
-    List<Stmt> stmtList;
 
-    private void program() {
+    private List<Stmt> program() {
         while (!reachedEndOfTokens()) {
             stmtList.add(statement());
         }
+        return stmtList;
     }
 
     private Stmt statement() {

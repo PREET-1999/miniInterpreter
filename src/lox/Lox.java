@@ -27,13 +27,15 @@ public class Lox {
     }
 
     Parser parser = new Parser(tokens);
-    Expr expression = parser.parse();
+    //before statements were added
+    // Expr expression = parser.parse();
 
+    List<Stmt> stmts = parser.parse();
     if (error)
       return;
     // System.out.println(new ASTPrinter().print(expression));
     ExprEvaluator evaluator = new ExprEvaluator();
-    evaluator.interpret(expression);
+    evaluator.interpret(stmts);
 
      if (error)
       return;

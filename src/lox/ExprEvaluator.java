@@ -1,5 +1,5 @@
 package src.lox;
-
+import java.util.List;
 public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
     private static class ExprEvaluationError extends RuntimeException {
     }
@@ -23,16 +23,30 @@ public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
         throw error(operator, "Operands must be numbers.");
     }
 
-    public void interpret(Expr expr) {
+    public Object interpret(Expr expr) {
         try {
-            System.out.println("Exp eval start....");
-            System.out.println( expr.accept(this) );
+            // System.out.println("Exp eval start....");
+            // System.out.println( expr.accept(this) );
+            return expr.accept(this);
+
         } catch (ExprEvaluationError error) {
+            return null;
         }
 
     }
 
-    
+     public void interpret(List<Stmt> stmts) {
+        try {
+            System.out.println("Exp eval start....");
+            // System.out.println( );
+            for(var stmt : stmts){
+                stmt.accept(this);
+            }
+
+        } catch (ExprEvaluationError error) {
+        }
+
+    }
 
     public static void printObjectType(Object obj) {
         if (obj instanceof Double) {
