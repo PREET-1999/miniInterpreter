@@ -1,11 +1,13 @@
 package src.lox;
+
 import java.util.List;
-public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
+
+public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private static class ExprEvaluationError extends RuntimeException {
     }
 
     private ExprEvaluationError error(Token operator, String message) {
-        Lox.error(operator,message);
+        Lox.error(operator, message);
         return new ExprEvaluationError();
     }
 
@@ -35,11 +37,11 @@ public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
 
     }
 
-     public void interpret(List<Stmt> stmts) {
+    public void interpret(List<Stmt> stmts) {
         try {
             System.out.println("Exp eval start....");
             // System.out.println( );
-            for(var stmt : stmts){
+            for (var stmt : stmts) {
                 stmt.accept(this);
             }
 
@@ -78,27 +80,38 @@ public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
 
         return a.equals(b);
     }
-@Override
-  public Void taskOnExpressionStmt(Stmt.Expression stmt) {
-    interpret(stmt.expression);
-    return null;
-  }
-@Override
-  public Void taskOnPrintStmt(Stmt.Print stmt) {
-    System.out.println(interpret(stmt.expression));
-    return null;
-  }
 
-  public Void taskOnVarDeclStmt(Stmt.VarDecl stmt) {
-    System.out.print("var ");
-    System.out.print(stmt.varId.lexeme);
-    if(stmt.expression != null){
-        System.out.print(" = ");
-        System.out.println(interpret(stmt.expression));
-
+    @Override
+    public Void taskOnExpressionStmt(Stmt.Expression stmt) {
+        interpret(stmt.expression);
+        return null;
     }
-    return null;
-  }
+
+    @Override
+    public Void taskOnPrintStmt(Stmt.Print stmt) {
+        System.out.println(interpret(stmt.expression));
+        return null;
+    }
+
+    public Void taskOnVarDeclStmt(Stmt.VarDecl stmt) {
+        System.out.print("var ");
+        System.out.print(stmt.varId.lexeme);
+        if (stmt.expression != null) {
+            Object exprVal = interpret(stmt.expression);
+            System.out.print(" = ");
+            System.out.println(exprVal);
+
+            //store this value to the symtab entry
+            SymbolTable.putSymTabEntry(stmt.varId.lexeme , exprVal);
+
+            //fetch for test
+            System.out.println("Symtab value " + SymbolTable.getSymTabEntry(stmt.varId.lexeme));
+
+
+        }
+        return null;
+    }
+
     public Object taskOnBinaryExpr(Expr.Binary expr) {
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);
@@ -128,7 +141,19 @@ public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
                 }
-
+                // either is a identifier, that too works (allow it, semantically we will see )
+                if (left instanceof Double && right instanceof Token) {
+                    System.out.println("krte hai hum prabandh");
+                    return null;
+                }
+                if (left instanceof Token && right instanceof Double) {
+                    System.out.println("krte hai hum prabandh");
+                    return null;
+                }
+                if (left instanceof Token && right instanceof Token) {
+                    System.out.println("krte hai hum prabandh");
+                    return null;
+                }
                 if (left instanceof String && right instanceof String) {
                     return (String) left + (String) right;
                 }

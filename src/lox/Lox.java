@@ -96,7 +96,7 @@ public class Lox {
     // System.out.println(new ASTPrinter().print(expression));
 
     if (args.length > 1) {
-    System.out.println("Usage: jlox [script]");
+    System.out.println("Usageeee: jlox [script]");
     System.exit(64);
     } else if (args.length == 1) {
     //run the file supplied

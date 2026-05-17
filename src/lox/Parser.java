@@ -213,7 +213,7 @@ public class Parser {
         return primary();
     }
 
-    // primary → NUMBER | STRING | "true" | "false" | "nil"
+    // primary → NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER
     // | "(" expression ")" ;
     private Expr primary() {
         System.out.println("primary -> I was called");
