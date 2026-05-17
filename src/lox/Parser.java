@@ -4,7 +4,12 @@ import static src.lox.TokenType.*;
 import java.util.ArrayList;
 import java.util.List;
 /*
-program        → statement* EOF ;
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement ;
+               
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
                | printStmt ;
@@ -20,7 +25,8 @@ factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
                | primary ;
 primary        → NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" ;
+               | "(" expression ")" 
+               | IDENTIFIER;
 */
 // Each grammar rule becomes a method inside this new class:
 
@@ -41,16 +47,16 @@ public class Parser {
         stmtList = new ArrayList<>();
     }
 
-    //before statements were added
+    // before statements were added
     // Expr parse() {
-    //     try {
-    //         return expression();
-    //     } catch (ParseError error) {
-    //         return null;
-    //     }
+    // try {
+    // return expression();
+    // } catch (ParseError error) {
+    // return null;
+    // }
     // }
 
-    //now since it has the correct starting symbol in grammer
+    // now since it has the correct starting symbol in grammer
     List<Stmt> parse() {
         try {
             return program();
@@ -59,13 +65,57 @@ public class Parser {
         }
     }
 
-
     private List<Stmt> program() {
         while (!reachedEndOfTokens()) {
-            stmtList.add(statement());
+            stmtList.add(declarationStmt());
         }
         return stmtList;
     }
+
+    private Stmt declarationStmt() {
+
+        if (matchThenStep(VAR)) {
+            System.out.println("var toh mila hai");
+            return varDecl();
+        }
+        return statement();
+
+    }
+
+    private Stmt varDecl() {
+
+        Token id = consume(IDENTIFIER, "Expect variable name.");
+        Expr expr = null;
+        if (matchThenStep(EQUAL)) {
+
+            expr = expression();
+
+        }
+                    consume(SEMICOLON, "Expect ';' after value.");
+
+        return new Stmt.VarDecl(expr, id);
+
+    }
+    // // The below one didnt work as it didnt handle just the decl-> var a ;
+
+    // private Stmt varDecl() {
+    // if (matchThenStep(IDENTIFIER)) {
+    // System.out.print("ID toh mila hai");
+
+    // Token id = previous();
+    // System.out.println(id);
+
+    // if (matchThenStep(EQUAL)) {
+    // System.out.println("= bhi mila hai");
+
+    // Expr expr = expression();
+    // consume(SEMICOLON, "Expect ';' after value.");
+
+    // return new Stmt.VarDecl(expr, id);
+    // }
+    // }
+    // return null;
+    // }
 
     private Stmt statement() {
         if (matchThenStep(PRINT))
@@ -183,6 +233,10 @@ public class Parser {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
+        }
+        if (matchThenStep(IDENTIFIER)) {
+            System.out.println("found Id" + previous());
+            return new Expr.Literal(previous());
         }
         System.out.println("Im Primary but couldnt find anything, returning null\n");
         // return null;// I dont think this is right to return...I was right, needed the

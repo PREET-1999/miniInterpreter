@@ -88,6 +88,17 @@ public class ExprEvaluator implements Expr.Visitor<Object>,Stmt.Visitor<Void> {
     System.out.println(interpret(stmt.expression));
     return null;
   }
+
+  public Void taskOnVarDeclStmt(Stmt.VarDecl stmt) {
+    System.out.print("var ");
+    System.out.print(stmt.varId.lexeme);
+    if(stmt.expression != null){
+        System.out.print(" = ");
+        System.out.println(interpret(stmt.expression));
+
+    }
+    return null;
+  }
     public Object taskOnBinaryExpr(Expr.Binary expr) {
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);

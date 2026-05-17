@@ -58,9 +58,17 @@ public class GenerateAST {
                 }),
                 new ClassDef("Print", new Field[] {
                         new Field("expression", "Expr")
+                }),
+                new ClassDef("VarDecl", new Field[] {
+                        new Field("expression", "Expr"),
+                        new Field("varId", "Token"),
+
                 })
                );
                 generateAST(outputDir, "Stmt", stmtTypes);
+
+        //Now for Decl
+        
 
 
     }
