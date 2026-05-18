@@ -101,12 +101,11 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             System.out.print(" = ");
             System.out.println(exprVal);
 
-            //store this value to the symtab entry
-            SymbolTable.putSymTabEntry(stmt.varId.lexeme , exprVal);
+            // store this value to the symtab entry
+            SymbolTable.putSymTabEntry(stmt.varId.lexeme, exprVal);
 
-            //fetch for test
+            // fetch for test
             System.out.println("Symtab value " + SymbolTable.getSymTabEntry(stmt.varId.lexeme));
-
 
         }
         return null;
@@ -119,17 +118,15 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         // System.out.println("left "+ left);
         // System.out.println("right "+right);
 
-
-
-        //can I consistently process and keep as Double/String after fetching value???
-        if(left instanceof Token){
-            String lhsId = ((Token)left).lexeme;
-            left = SymbolTable.getSymTabEntry(lhsId);
-        }
-        if(right instanceof Token){
-            String rhsId = ((Token)right).lexeme;
-            right = SymbolTable.getSymTabEntry(rhsId);
-        }
+        // can I consistently process and keep as Double/String after fetching value???
+        // if(left instanceof Token){
+        // String lhsId = ((Token)left).lexeme;
+        // left = SymbolTable.getSymTabEntry(lhsId);
+        // }
+        // if(right instanceof Token){
+        // String rhsId = ((Token)right).lexeme;
+        // right = SymbolTable.getSymTabEntry(rhsId);
+        // }
 
         switch (expr.operator.type) {
             case NOT_EQUAL:
@@ -156,7 +153,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
                 }
-                
+
                 if (left instanceof String && right instanceof String) {
                     return (String) left + (String) right;
                 }
@@ -173,6 +170,12 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public Object taskOnUnaryExpr(Expr.Unary expr) {
         Object unaryObj = expr.right.accept(this);
+
+        // if(unaryObj instanceof Token){
+        // String unaryId = ((Token)unaryObj).lexeme;
+        // unaryObj = SymbolTable.getSymTabEntry(unaryId);
+        // }
+
         switch (expr.operator.type) {
             case NOT:
                 return !isTruthy(unaryObj);
@@ -186,7 +189,15 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object taskOnLiteralExpr(Expr.Literal expr) {
 
         Object val = expr.value;
-        System.out.println("In rtaskOnLiteral "+ val);
+
+        // Probably just transforming the ifentifier to its value here at this point,
+        // might work
+        if (val instanceof Token) {
+            String valId = ((Token) val).lexeme;
+            val = SymbolTable.getSymTabEntry(valId);
+        }
+        System.out.println("In rtaskOnLiteral " + val);
+
         return val;
 
     }
