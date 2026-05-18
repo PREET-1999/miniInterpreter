@@ -116,11 +116,20 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);
 
-        System.out.println("left "+ left);
-        System.out.println("right "+right);
+        // System.out.println("left "+ left);
+        // System.out.println("right "+right);
 
 
-        
+
+        //can I consistently process and keep as Double/String after fetching value???
+        if(left instanceof Token){
+            String lhsId = ((Token)left).lexeme;
+            left = SymbolTable.getSymTabEntry(lhsId);
+        }
+        if(right instanceof Token){
+            String rhsId = ((Token)right).lexeme;
+            right = SymbolTable.getSymTabEntry(rhsId);
+        }
 
         switch (expr.operator.type) {
             case NOT_EQUAL:
@@ -147,34 +156,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
                 }
-                // either is a identifier, that too works (allow it, semantically we will see )
-                if (left instanceof Double && right instanceof Token) {
-                    String rhsId = ((Token)right).lexeme;
-                    Object rhsValue = SymbolTable.getSymTabEntry(rhsId);
-                    if(rhsValue != null){
-                        return (double)left  + (double)rhsValue;
-                    }
-                    return null;
-                }
-                if (left instanceof Token && right instanceof Double) {
-                    String lhsId = ((Token)left).lexeme;
-                    Object lhsValue = SymbolTable.getSymTabEntry(lhsId);
-                    if(lhsValue != null){
-                        return (double)lhsValue + (double)right;
-                    }
-                    return null;
-                }
-                if (left instanceof Token && right instanceof Token) {
-                    String rhsId = ((Token)right).lexeme;
-                    Object rhsValue = SymbolTable.getSymTabEntry(rhsId);
-                     String lhsId = ((Token)left).lexeme;
-                    Object lhsValue = SymbolTable.getSymTabEntry(lhsId);
-                    if(lhsValue!=null && rhsValue!=null){
-                        return (double)lhsValue + (double)rhsValue;
-
-                    }
-                    return null;
-                }
+                
                 if (left instanceof String && right instanceof String) {
                     return (String) left + (String) right;
                 }
