@@ -208,6 +208,10 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object taskOnAssignExpr(Expr.Assign expr) {
-        return null; //yet to write
+        System.out.println("ASSIGN KA KYA KRNA HAI?");
+         Object rhsExprVal = interpret(expr.rhsExpr);
+            // store this value to the symtab entry
+        SymbolTable.putSymTabEntry(expr.leftId.lexeme, rhsExprVal);
+        return rhsExprVal; 
     }
 }

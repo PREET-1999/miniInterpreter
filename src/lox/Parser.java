@@ -145,12 +145,18 @@ public class Parser {
     }
 
     private Expr assignment(){
-        if(matchThenStep(IDENTIFIER)){
-            Token id = previous();
+        if(checkTokenType(IDENTIFIER) && checkNextTokenType(EQUAL)){
+            Token id = consume(IDENTIFIER, "expected an IDENTIFIER");
             consume(EQUAL, "expected a =");
             Expr rhs = assignment();
             return new Expr.Assign(id, rhs);
         }
+        // if(matchThenStep(IDENTIFIER)){
+        //     Token id = previous();
+        //     consume(EQUAL, "expected a =");
+        //     Expr rhs = assignment();
+        //     return new Expr.Assign(id, rhs);
+        // }
         
         return equality();
     }
@@ -273,6 +279,7 @@ public class Parser {
     private boolean matchThenStep(TokenType... types) {
         for (TokenType type : types) {
             if (checkTokenType(type)) {
+                System.out.println("matching for" +type);
                 getTokenAndStep();
                 return true;
             }
@@ -286,7 +293,11 @@ public class Parser {
             return false;
         return peek().type == type;
     }
-
+    private boolean checkNextTokenType(TokenType type){
+        if (reachedEndOfTokens())
+            return false;
+        return peekNext().type == type;
+    }
     private Token getTokenAndStep() {
         return tokens.get(current++);
     }
@@ -299,6 +310,13 @@ public class Parser {
         if (reachedEndOfTokens())
             return null;
         return tokens.get(current);
+    }
+    private Token peekNext(){
+        if (reachedEndOfTokens())
+            return null;
+        if(current + 1 > tokens.size())
+            return null;
+        return tokens.get(current + 1);
     }
 
     private boolean reachedEndOfTokens() {
