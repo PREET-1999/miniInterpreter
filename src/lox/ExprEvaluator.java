@@ -206,4 +206,8 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object exp = expr.expression.accept(this);
         return exp;
     }
+
+    public Object taskOnAssignExpr(Expr.Assign expr) {
+        return null; //yet to write
+    }
 }

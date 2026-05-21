@@ -47,7 +47,15 @@ public class GenerateAST {
                 new ClassDef("Unary", new Field[] {
                         new Field("operator", "Token"),
                         new Field("right", "Expr")
-                }));
+                }),
+                new ClassDef("Assign", new Field[] {
+                        new Field("leftId", "Token"),
+                        new Field("rhsExpr", "Expr")
+
+                })
+
+        
+        );
 
         generateAST(outputDir, "Expr", exprTypes);
 

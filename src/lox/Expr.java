@@ -6,6 +6,7 @@ abstract class Expr {
         R taskOnGroupingExpr(Grouping expr);
         R taskOnLiteralExpr(Literal expr);
         R taskOnUnaryExpr(Unary expr);
+        R taskOnAssignExpr(Assign expr);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -62,6 +63,20 @@ abstract class Expr {
         Unary(Token operator, Expr right) {
             this.operator = operator;
             this.right = right;
+        }
+    }
+    static class Assign extends Expr {
+        final Token leftId;
+        final Expr rhsExpr;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnAssignExpr(this);
+        }
+        Assign(Token leftId, Expr rhsExpr) {
+            this.leftId = leftId;
+            this.rhsExpr = rhsExpr;
         }
     }
 }

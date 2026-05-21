@@ -17,7 +17,9 @@ statement      → exprStmt
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 
-expression     → equality ;
+expression     → assignment;
+assignment     → IDENTIFIER "=" assignment
+               | equality
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
@@ -138,6 +140,18 @@ public class Parser {
     }
 
     private Expr expression() {
+
+            return assignment();
+    }
+
+    private Expr assignment(){
+        if(matchThenStep(IDENTIFIER)){
+            Token id = previous();
+            consume(EQUAL, "expected a =");
+            Expr rhs = assignment();
+            return new Expr.Assign(id, rhs);
+        }
+        
         return equality();
     }
 
