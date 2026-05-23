@@ -1,5 +1,7 @@
 package src.lox;
 
+import static src.lox.TokenType.EQUAL;
+
 import java.util.List;
 
 public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -103,10 +105,10 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
             // store this value to the symtab entry
             SymbolTable.putSymTabEntry(stmt.varId.lexeme, exprVal);
-
-            // fetch for test
-            System.out.println("Symtab value " + SymbolTable.getSymTabEntry(stmt.varId.lexeme));
-
+        }
+        else{
+            // store default value 0 to the symtab entry
+            SymbolTable.putSymTabEntry(stmt.varId.lexeme, 0);
         }
         return null;
     }
@@ -210,8 +212,16 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object taskOnAssignExpr(Expr.Assign expr) {
         System.out.println("ASSIGN KA KYA KRNA HAI?");
          Object rhsExprVal = interpret(expr.rhsExpr);
-            // store this value to the symtab entry
-        SymbolTable.putSymTabEntry(expr.leftId.lexeme, rhsExprVal);
+            // store this value to the symtab entry only if it was defined
+            if(SymbolTable.containsSymbol(expr.leftId.lexeme))
+            {
+                        SymbolTable.putSymTabEntry(expr.leftId.lexeme, rhsExprVal);
+
+            }
+            else{
+                //throw undefined variable error
+                throw error(new Token(EQUAL,"equals","equals",-1) ,"Undefined variable");
+            }
         return rhsExprVal; 
     }
 }

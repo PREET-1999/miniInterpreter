@@ -145,10 +145,11 @@ public class Parser {
     }
 
     private Expr assignment(){
+        // In a complex l-value, this might fail...
         if(checkTokenType(IDENTIFIER) && checkNextTokenType(EQUAL)){
             Token id = consume(IDENTIFIER, "expected an IDENTIFIER");
             consume(EQUAL, "expected a =");
-            Expr rhs = assignment();
+            Expr rhs = assignment(); //we didnt loop, because assignment is right associative (oooo)
             return new Expr.Assign(id, rhs);
         }
         // if(matchThenStep(IDENTIFIER)){

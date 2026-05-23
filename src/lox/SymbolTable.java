@@ -15,4 +15,8 @@ public class SymbolTable {
             return symbolTable.get(key);
         }
 
+        static boolean containsSymbol(String key){
+            return symbolTable.get(key)!=null;
+        }
+
 }
