@@ -41,7 +41,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public void interpret(List<Stmt> stmts) {
         try {
-            System.out.println("Exp eval start....");
+            // System.out.println("Exp eval start....");
             // System.out.println( );
             for (var stmt : stmts) {
                 stmt.accept(this);
@@ -198,7 +198,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             String valId = ((Token) val).lexeme;
             val = SymbolTable.getSymTabEntry(valId);
         }
-        System.out.println("In rtaskOnLiteral " + val);
+        // System.out.println("In rtaskOnLiteral " + val);
 
         return val;
 
@@ -210,7 +210,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object taskOnAssignExpr(Expr.Assign expr) {
-        System.out.println("ASSIGN KA KYA KRNA HAI?");
+        // System.out.println("ASSIGN KA KYA KRNA HAI?");
          Object rhsExprVal = interpret(expr.rhsExpr);
             // store this value to the symtab entry only if it was defined
             if(SymbolTable.containsSymbol(expr.leftId.lexeme))

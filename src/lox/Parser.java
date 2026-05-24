@@ -13,9 +13,10 @@ varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
                | printStmt ;
-
+               | block
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
+block          → "{" declaration* "}" ";"  ;            
 
 expression     → assignment;
 assignment     → IDENTIFIER "=" assignment
@@ -77,7 +78,7 @@ public class Parser {
     private Stmt declarationStmt() {
 
         if (matchThenStep(VAR)) {
-            System.out.println("var toh mila hai");
+            // System.out.println("var toh mila hai");
             return varDecl();
         }
         return statement();
@@ -164,10 +165,10 @@ public class Parser {
 
     // equality → comparison ( ( "!=" | "==" ) comparison )* ;
     private Expr equality() {
-        System.out.println("Equality -> I was called");
+        // System.out.println("Equality -> I was called");
         Expr expr = comparision();
 
-        System.out.println(" Equality ==| !== ");
+        // System.out.println(" Equality ==| !== ");
         while (matchThenStep(NOT_EQUAL, EQUAL_EQUAL)) {
             Token operator = previous();
             Expr right = comparision();
@@ -179,7 +180,7 @@ public class Parser {
 
     // comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
     private Expr comparision() {
-        System.out.println("Comparision -> I was called");
+        // System.out.println("Comparision -> I was called");
 
         Expr expr = term();
 
@@ -193,7 +194,7 @@ public class Parser {
     }
 
     private Expr term() {
-        System.out.println("term -> I was called");
+        // System.out.println("term -> I was called");
 
         Expr expr = factor();
 
@@ -207,7 +208,7 @@ public class Parser {
     }
 
     private Expr factor() {
-        System.out.println("factor -> I was called");
+        // System.out.println("factor -> I was called");
 
         Expr expr = unary();
 
@@ -223,7 +224,7 @@ public class Parser {
     // unary → ( "!" | "-" ) unary
     // | primary ;
     private Expr unary() {
-        System.out.println("unary -> I was called");
+        // System.out.println("unary -> I was called");
 
         if (matchThenStep(NOT, MINUS)) {
             Token operator = previous();
@@ -237,7 +238,7 @@ public class Parser {
     // primary → NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER
     // | "(" expression ")" ;
     private Expr primary() {
-        System.out.println("primary -> I was called");
+        // System.out.println("primary -> I was called");
 
         if (matchThenStep(FALSE))
             return new Expr.Literal(false);
@@ -256,10 +257,10 @@ public class Parser {
             return new Expr.Grouping(expr);
         }
         if (matchThenStep(IDENTIFIER)) {
-            System.out.println("found Id" + previous());
+            // System.out.println("found Id" + previous());
             return new Expr.Literal(previous());
         }
-        System.out.println("Im Primary but couldnt find anything, returning null\n");
+        // System.out.println("Im Primary but couldnt find anything, returning null\n");
         // return null;// I dont think this is right to return...I was right, needed the
         // below stmt
         throw error(peek(), "Expected expression.");
@@ -280,7 +281,7 @@ public class Parser {
     private boolean matchThenStep(TokenType... types) {
         for (TokenType type : types) {
             if (checkTokenType(type)) {
-                System.out.println("matching for" +type);
+                // System.out.println("matching for" +type);
                 getTokenAndStep();
                 return true;
             }
