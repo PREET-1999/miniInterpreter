@@ -224,4 +224,9 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         return rhsExprVal; 
     }
+
+        public Void taskOnBlockStmt(Stmt.Block blockStmt) {
+            return null; //yet to decide
+        }
+
 }

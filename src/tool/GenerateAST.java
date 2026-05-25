@@ -71,6 +71,10 @@ public class GenerateAST {
                         new Field("expression", "Expr"),
                         new Field("varId", "Token"),
 
+                }),
+                new ClassDef("Block", new Field[] {
+                        new Field("blockStmts", "Stmt"),
+
                 })
                );
                 generateAST(outputDir, "Stmt", stmtTypes);

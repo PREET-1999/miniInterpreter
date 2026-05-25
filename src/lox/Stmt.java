@@ -5,6 +5,7 @@ abstract class Stmt {
         R taskOnExpressionStmt(Expression stmt);
         R taskOnPrintStmt(Print stmt);
         R taskOnVarDeclStmt(VarDecl stmt);
+        R taskOnBlockStmt(Block stmt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -45,6 +46,18 @@ abstract class Stmt {
         VarDecl(Expr expression, Token varId) {
             this.expression = expression;
             this.varId = varId;
+        }
+    }
+    static class Block extends Stmt {
+        final Stmt blockStmts;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnBlockStmt(this);
+        }
+        Block(Stmt blockStmts) {
+            this.blockStmts = blockStmts;
         }
     }
 }
