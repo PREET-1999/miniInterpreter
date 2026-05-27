@@ -1,6 +1,7 @@
 package src.lox;
 
 import static src.lox.TokenType.EQUAL;
+import static src.lox.TokenType.PRINT;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return new ExprEvaluationError();
     }
 
+    private SymbolTableManager symTabManager = null;
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double)
             return;
@@ -28,6 +30,11 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object interpret(Expr expr) {
+        if(symTabManager == null)
+        {
+            symTabManager = new SymbolTableManager();
+            symTabManager.appendNewSymbolTable(); //for the global scope
+        }
         try {
             // System.out.println("Exp eval start....");
             // System.out.println( expr.accept(this) );
@@ -40,6 +47,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public void interpret(List<Stmt> stmts) {
+        
         try {
             // System.out.println("Exp eval start....");
             // System.out.println( );
@@ -104,11 +112,11 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             System.out.println(exprVal);
 
             // store this value to the symtab entry
-            SymbolTable.putSymTabEntry(stmt.varId.lexeme, exprVal);
+            symTabManager.addSymbol(stmt.varId.lexeme, exprVal);
         }
         else{
             // store default value 0 to the symtab entry
-            SymbolTable.putSymTabEntry(stmt.varId.lexeme, 0);
+            symTabManager.addSymbol(stmt.varId.lexeme, 0);
         }
         return null;
     }
@@ -196,7 +204,13 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         // might work
         if (val instanceof Token) {
             String valId = ((Token) val).lexeme;
-            val = SymbolTable.getSymTabEntry(valId);
+            val = symTabManager.getSymbol(valId);
+            if(val==null){
+                
+                //throw undefined variable error
+                throw error(new Token(PRINT,"print","print",-1) ,"Undefined variable");
+            
+            }
         }
         // System.out.println("In rtaskOnLiteral " + val);
 
@@ -213,9 +227,9 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         // System.out.println("ASSIGN KA KYA KRNA HAI?");
          Object rhsExprVal = interpret(expr.rhsExpr);
             // store this value to the symtab entry only if it was defined
-            if(SymbolTable.containsSymbol(expr.leftId.lexeme))
+            if(symTabManager.containsSymbol(expr.leftId.lexeme))
             {
-                        SymbolTable.putSymTabEntry(expr.leftId.lexeme, rhsExprVal);
+                        symTabManager.addSymbol(expr.leftId.lexeme, rhsExprVal);
 
             }
             else{
@@ -226,6 +240,9 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
         public Void taskOnBlockStmt(Stmt.Block blockStmt) {
+            symTabManager.appendNewSymbolTable();
+            interpret(blockStmt.blockStmts);
+            symTabManager.removeSymbolTable();
             return null; //yet to decide
         }
 

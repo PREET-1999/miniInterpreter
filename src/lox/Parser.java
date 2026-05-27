@@ -94,7 +94,7 @@ public class Parser {
             expr = expression();
 
         }
-                    consume(SEMICOLON, "Expect ';' after value.");
+        consume(SEMICOLON, "Expect ';' after value.");
 
         return new Stmt.VarDecl(expr, id);
 
@@ -124,7 +124,21 @@ public class Parser {
         if (matchThenStep(PRINT))
             return printStatement();
 
+        if (matchThenStep(LEFT_BRACE)) {
+           return blockStatement();
+        }
+
         return expressionStatement();
+    }
+
+    private Stmt blockStatement() {
+        List<Stmt> blockstmts = new ArrayList<>();
+        while (!matchThenStep(RIGHT_BRACE)) {
+            Stmt blockStmt = declarationStmt();
+            blockstmts.add(blockStmt);
+        }
+        // consume(RIGHT_BRACE, "expected closing }");
+        return new Stmt.Block(blockstmts);
     }
 
     private Stmt printStatement() {
@@ -142,24 +156,24 @@ public class Parser {
 
     private Expr expression() {
 
-            return assignment();
+        return assignment();
     }
 
-    private Expr assignment(){
+    private Expr assignment() {
         // In a complex l-value, this might fail...
-        if(checkTokenType(IDENTIFIER) && checkNextTokenType(EQUAL)){
+        if (checkTokenType(IDENTIFIER) && checkNextTokenType(EQUAL)) {
             Token id = consume(IDENTIFIER, "expected an IDENTIFIER");
             consume(EQUAL, "expected a =");
-            Expr rhs = assignment(); //we didnt loop, because assignment is right associative (oooo)
+            Expr rhs = assignment(); // we didnt loop, because assignment is right associative (oooo)
             return new Expr.Assign(id, rhs);
         }
         // if(matchThenStep(IDENTIFIER)){
-        //     Token id = previous();
-        //     consume(EQUAL, "expected a =");
-        //     Expr rhs = assignment();
-        //     return new Expr.Assign(id, rhs);
+        // Token id = previous();
+        // consume(EQUAL, "expected a =");
+        // Expr rhs = assignment();
+        // return new Expr.Assign(id, rhs);
         // }
-        
+
         return equality();
     }
 
@@ -295,11 +309,13 @@ public class Parser {
             return false;
         return peek().type == type;
     }
-    private boolean checkNextTokenType(TokenType type){
+
+    private boolean checkNextTokenType(TokenType type) {
         if (reachedEndOfTokens())
             return false;
         return peekNext().type == type;
     }
+
     private Token getTokenAndStep() {
         return tokens.get(current++);
     }
@@ -313,10 +329,11 @@ public class Parser {
             return null;
         return tokens.get(current);
     }
-    private Token peekNext(){
+
+    private Token peekNext() {
         if (reachedEndOfTokens())
             return null;
-        if(current + 1 > tokens.size())
+        if (current + 1 > tokens.size())
             return null;
         return tokens.get(current + 1);
     }

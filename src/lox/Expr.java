@@ -1,5 +1,9 @@
 package src.lox;
 
+import java.util.List;
+
+import java.util.ArrayList;
+
 abstract class Expr {
     interface Visitor<R> {
         R taskOnBinaryExpr(Binary expr);

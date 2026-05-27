@@ -1,5 +1,9 @@
 package src.lox;
 
+import java.util.List;
+
+import java.util.ArrayList;
+
 abstract class Stmt {
     interface Visitor<R> {
         R taskOnExpressionStmt(Expression stmt);
@@ -49,14 +53,14 @@ abstract class Stmt {
         }
     }
     static class Block extends Stmt {
-        final Stmt blockStmts;
+        final List<Stmt> blockStmts;
 
 
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.taskOnBlockStmt(this);
         }
-        Block(Stmt blockStmts) {
+        Block(List<Stmt> blockStmts) {
             this.blockStmts = blockStmts;
         }
     }

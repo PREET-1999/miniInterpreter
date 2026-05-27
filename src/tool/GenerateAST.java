@@ -6,179 +6,181 @@ import java.nio.file.Path;
 import java.util.List;
 
 class Field {
-    String name;
-    String type;
+        String name;
+        String type;
 
-    Field(String name, String type) {
-        this.name = name;
-        this.type = type;
-    }
+        Field(String name, String type) {
+                this.name = name;
+                this.type = type;
+        }
 }
 
 class ClassDef {
-    String name;
-    Field[] fields;
+        String name;
+        Field[] fields;
 
-    ClassDef(String name, Field[] fields) {
-        this.name = name;
-        this.fields = fields;
-    }
+        ClassDef(String name, Field[] fields) {
+                this.name = name;
+                this.fields = fields;
+        }
 }
 
 public class GenerateAST {
 
-    public static void main(String[] args) throws IOException {
-        String outputDir = args.length > 0 ? args[0] : ".";
+        public static void main(String[] args) throws IOException {
+                String outputDir = args.length > 0 ? args[0] : ".";
 
-        List<ClassDef> exprTypes = List.of(
-                new ClassDef("Binary", new Field[] {
-                        new Field("left", "Expr"),
-                        new Field("operator", "Token"),
-                        new Field("right", "Expr")
-                }),
-                new ClassDef("Grouping", new Field[] {
-                        new Field("expression", "Expr")
-                }),
-                new ClassDef("Literal", new Field[] {
-                        // new Field("value", "Token") // lets see why OBject would be better
-                        new Field("value", "Object") // OBject as I needed to create as new Literal(123);
+                List<ClassDef> exprTypes = List.of(
+                                new ClassDef("Binary", new Field[] {
+                                                new Field("left", "Expr"),
+                                                new Field("operator", "Token"),
+                                                new Field("right", "Expr")
+                                }),
+                                new ClassDef("Grouping", new Field[] {
+                                                new Field("expression", "Expr")
+                                }),
+                                new ClassDef("Literal", new Field[] {
+                                                // new Field("value", "Token") // lets see why OBject would be better
+                                                new Field("value", "Object") // OBject as I needed to create as new
+                                                                             // Literal(123);
 
-                }),
-                new ClassDef("Unary", new Field[] {
-                        new Field("operator", "Token"),
-                        new Field("right", "Expr")
-                }),
-                new ClassDef("Assign", new Field[] {
-                        new Field("leftId", "Token"),
-                        new Field("rhsExpr", "Expr")
+                                }),
+                                new ClassDef("Unary", new Field[] {
+                                                new Field("operator", "Token"),
+                                                new Field("right", "Expr")
+                                }),
+                                new ClassDef("Assign", new Field[] {
+                                                new Field("leftId", "Token"),
+                                                new Field("rhsExpr", "Expr")
 
-                })
+                                })
 
-        
-        );
+                );
 
-        generateAST(outputDir, "Expr", exprTypes);
+                generateAST(outputDir, "Expr", exprTypes);
 
-        //Now for stmt
-        List<ClassDef> stmtTypes = List.of(
-                new ClassDef("Expression", new Field[] {
-                        new Field("expression", "Expr")
-                }),
-                new ClassDef("Print", new Field[] {
-                        new Field("expression", "Expr")
-                }),
-                new ClassDef("VarDecl", new Field[] {
-                        new Field("expression", "Expr"),
-                        new Field("varId", "Token"),
+                // Now for stmt
+                List<ClassDef> stmtTypes = List.of(
+                                new ClassDef("Expression", new Field[] {
+                                                new Field("expression", "Expr")
+                                }),
+                                new ClassDef("Print", new Field[] {
+                                                new Field("expression", "Expr")
+                                }),
+                                new ClassDef("VarDecl", new Field[] {
+                                                new Field("expression", "Expr"),
+                                                new Field("varId", "Token"),
 
-                }),
-                new ClassDef("Block", new Field[] {
-                        new Field("blockStmts", "Stmt"),
-
-                })
-               );
+                                }),
+                                new ClassDef("Block", new Field[] {
+                                                // new Field("blockStmts", "Stmt"), //this didnt work as only one
+                                                // statement was handled inside block, we want multiple alowed
+                                                new Field("blockStmts", "List<Stmt>")
+                                }));
                 generateAST(outputDir, "Stmt", stmtTypes);
 
-        //Now for Decl
-        
+                // Now for Decl
 
-
-    }
-
-    static void defineVisitor(StringBuilder content, String baseName, List<ClassDef> types) {
-        content.append("    interface Visitor<R> {\n");
-
-        for (ClassDef type : types) {
-            content.append("        R taskOn")
-                    .append(type.name)
-                    .append(baseName)
-                    .append("(")
-                    .append(type.name)
-                    .append(" ")
-                    .append(baseName.toLowerCase())
-                    .append(");\n");
         }
 
-        content.append("    }\n\n");
-    }
+        static void defineVisitor(StringBuilder content, String baseName, List<ClassDef> types) {
+                content.append("    interface Visitor<R> {\n");
 
-    static void generateAST(String outputDir, String baseName, List<ClassDef> types)
-            throws IOException {
+                for (ClassDef type : types) {
+                        content.append("        R taskOn")
+                                        .append(type.name)
+                                        .append(baseName)
+                                        .append("(")
+                                        .append(type.name)
+                                        .append(" ")
+                                        .append(baseName.toLowerCase())
+                                        .append(");\n");
+                }
 
-        StringBuilder content = new StringBuilder();
-        content.append("package ")
-                .append(outputDir.replace(System.getProperty("file.separator"), "."))
-                .append(";\n\n");
-        content.append("abstract class ").append(baseName).append(" {\n");
-
-        // Visitor
-        defineVisitor(content, baseName, types);
-
-        content.append("    abstract <R> R accept(Visitor<R> visitor);\n\n");
-
-        // Generate subclasses
-        for (ClassDef type : types) {
-            defineType(content, baseName, type);
+                content.append("    }\n\n");
         }
 
-        content.append("}\n");
+        static void generateAST(String outputDir, String baseName, List<ClassDef> types)
+                        throws IOException {
 
-        Path path = Path.of(outputDir, baseName + ".java");
-        Files.writeString(path, content.toString());
-    }
+                StringBuilder content = new StringBuilder();
+                content.append("package ")
+                                .append(outputDir.replace(System.getProperty("file.separator"), "."))
+                                .append(";\n\n");
+                content.append("import java.util.List").append(";\n");
 
-    static void defineType(StringBuilder content, String baseName, ClassDef classDef) {
-        content.append("    static class ")
-                .append(classDef.name)
-                .append(" extends ")
-                .append(baseName)
-                .append(" {\n");
+                content.append("import java.util.ArrayList").append(";\n");
 
-        // Fields
-        for (Field field : classDef.fields) {
-            content.append("        final ")
-                    .append(field.type)
-                    .append(" ")
-                    .append(field.name)
-                    .append(";\n");
+                content.append("abstract class ").append(baseName).append(" {\n");
+
+                // Visitor
+                defineVisitor(content, baseName, types);
+
+                content.append("    abstract <R> R accept(Visitor<R> visitor);\n\n");
+
+                // Generate subclasses
+                for (ClassDef type : types) {
+                        defineType(content, baseName, type);
+                }
+
+                content.append("}\n");
+
+                Path path = Path.of(outputDir, baseName + ".java");
+                Files.writeString(path, content.toString());
         }
 
-        //// visit/taskOn for my naming convention
-        content.append("\n");
-        content.append("\n        @Override\n")
-                .append("        public <R> R accept(Visitor<R> visitor) {\n")
-                .append("            return visitor.taskOn")
-                .append(classDef.name)
-                .append(baseName)
-                .append("(this);\n")
-                .append("        }\n");
+        static void defineType(StringBuilder content, String baseName, ClassDef classDef) {
+                content.append("    static class ")
+                                .append(classDef.name)
+                                .append(" extends ")
+                                .append(baseName)
+                                .append(" {\n");
 
-        // Constructor
-        content.append("        ")
-                .append(classDef.name)
-                .append("(");
+                // Fields
+                for (Field field : classDef.fields) {
+                        content.append("        final ")
+                                        .append(field.type)
+                                        .append(" ")
+                                        .append(field.name)
+                                        .append(";\n");
+                }
 
-        for (int i = 0; i < classDef.fields.length; i++) {
-            Field f = classDef.fields[i];
-            content.append(f.type).append(" ").append(f.name);
-            if (i < classDef.fields.length - 1) {
-                content.append(", ");
-            }
+                //// visit/taskOn for my naming convention
+                content.append("\n");
+                content.append("\n        @Override\n")
+                                .append("        public <R> R accept(Visitor<R> visitor) {\n")
+                                .append("            return visitor.taskOn")
+                                .append(classDef.name)
+                                .append(baseName)
+                                .append("(this);\n")
+                                .append("        }\n");
+
+                // Constructor
+                content.append("        ")
+                                .append(classDef.name)
+                                .append("(");
+
+                for (int i = 0; i < classDef.fields.length; i++) {
+                        Field f = classDef.fields[i];
+                        content.append(f.type).append(" ").append(f.name);
+                        if (i < classDef.fields.length - 1) {
+                                content.append(", ");
+                        }
+                }
+
+                content.append(") {\n");
+
+                // Assignments
+                for (Field field : classDef.fields) {
+                        content.append("            this.")
+                                        .append(field.name)
+                                        .append(" = ")
+                                        .append(field.name)
+                                        .append(";\n");
+                }
+
+                content.append("        }\n");
+
+                content.append("    }\n");
         }
-
-        content.append(") {\n");
-
-        // Assignments
-        for (Field field : classDef.fields) {
-            content.append("            this.")
-                    .append(field.name)
-                    .append(" = ")
-                    .append(field.name)
-                    .append(";\n");
-        }
-
-        content.append("        }\n");
-
-        content.append("    }\n");
-    }
 }

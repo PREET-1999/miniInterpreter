@@ -1,22 +1,46 @@
 package src.lox;
+
 import java.util.HashMap; // Import the HashMap class
 
 //ek new symbolTable Banayengae which would be instantiated at the very start of program??
 //fir uske insrance ko ghumana padega
 //better static rakhdo usko (//...FOUND top level class declared as static would give compile time error)
+// public class SymbolTable {
+//         static HashMap<String, Object> symbolTable = new HashMap<>();
+
+//         static void putSymTabEntry(String key, Object value){
+//             symbolTable.put(key,value);
+//         }
+
+//         static Object getSymTabEntry(String key){
+//             return symbolTable.get(key);
+//         }
+
+//         static boolean containsSymbol(String key){
+//             return symbolTable.get(key)!=null;
+//         }
+
+// }
+
 public class SymbolTable {
-        static HashMap<String, Object> symbolTable = new HashMap<>();
+    HashMap<String, Object> symbolTable;
+    SymbolTable next;
 
-        static void putSymTabEntry(String key, Object value){
-            symbolTable.put(key,value);
-        }
+    SymbolTable() {
+        symbolTable = new HashMap<>();
+        next = null;
+    }
 
-        static Object getSymTabEntry(String key){
-            return symbolTable.get(key);
-        }
+    void putSymTabEntry(String key, Object value) {
+        symbolTable.put(key, value);
+    }
 
-        static boolean containsSymbol(String key){
-            return symbolTable.get(key)!=null;
-        }
+    Object getSymTabEntry(String key) {
+        return symbolTable.get(key);
+    }
+
+    boolean containsSymbol(String key) {
+        return symbolTable.get(key) != null;
+    }
 
 }
