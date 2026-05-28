@@ -1,15 +1,14 @@
 package src.lox;
 
 import java.util.List;
-
 import java.util.ArrayList;
-
 abstract class Stmt {
     interface Visitor<R> {
         R taskOnExpressionStmt(Expression stmt);
         R taskOnPrintStmt(Print stmt);
         R taskOnVarDeclStmt(VarDecl stmt);
         R taskOnBlockStmt(Block stmt);
+        R taskOnIfStmt(If stmt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -62,6 +61,22 @@ abstract class Stmt {
         }
         Block(List<Stmt> blockStmts) {
             this.blockStmts = blockStmts;
+        }
+    }
+    static class If extends Stmt {
+        final Expr expression;
+        final Stmt takenStmt;
+        final Stmt notTakenStmt;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnIfStmt(this);
+        }
+        If(Expr expression, Stmt takenStmt, Stmt notTakenStmt) {
+            this.expression = expression;
+            this.takenStmt = takenStmt;
+            this.notTakenStmt = notTakenStmt;
         }
     }
 }

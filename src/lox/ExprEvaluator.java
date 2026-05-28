@@ -15,6 +15,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     private SymbolTableManager symTabManager = null;
+
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double)
             return;
@@ -30,10 +31,9 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object interpret(Expr expr) {
-        if(symTabManager == null)
-        {
+        if (symTabManager == null) {
             symTabManager = new SymbolTableManager();
-            symTabManager.appendNewSymbolTable(); //for the global scope
+            symTabManager.appendNewSymbolTable(); // for the global scope
         }
         try {
             // System.out.println("Exp eval start....");
@@ -47,7 +47,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public void interpret(List<Stmt> stmts) {
-        
+
         try {
             // System.out.println("Exp eval start....");
             // System.out.println( );
@@ -113,8 +113,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
             // store this value to the symtab entry
             symTabManager.addSymbol(stmt.varId.lexeme, exprVal);
-        }
-        else{
+        } else {
             // store default value 0 to the symtab entry
             symTabManager.addSymbol(stmt.varId.lexeme, 0);
         }
@@ -205,11 +204,11 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (val instanceof Token) {
             String valId = ((Token) val).lexeme;
             val = symTabManager.getSymbol(valId);
-            if(val==null){
-                
-                //throw undefined variable error
-                throw error(new Token(PRINT,"print","print",-1) ,"Undefined variable");
-            
+            if (val == null) {
+
+                // throw undefined variable error
+                throw error(new Token(PRINT, "print", "print", -1), "Undefined variable");
+
             }
         }
         // System.out.println("In rtaskOnLiteral " + val);
@@ -225,25 +224,34 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public Object taskOnAssignExpr(Expr.Assign expr) {
         // System.out.println("ASSIGN KA KYA KRNA HAI?");
-         Object rhsExprVal = interpret(expr.rhsExpr);
-            // store this value to the symtab entry only if it was defined
-            if(symTabManager.containsSymbol(expr.leftId.lexeme))
-            {
-                        symTabManager.addSymbol(expr.leftId.lexeme, rhsExprVal);
+        Object rhsExprVal = interpret(expr.rhsExpr);
+        // store this value to the symtab entry only if it was defined
+        if (symTabManager.containsSymbol(expr.leftId.lexeme)) {
+            symTabManager.addSymbol(expr.leftId.lexeme, rhsExprVal);
 
-            }
-            else{
-                //throw undefined variable error
-                throw error(new Token(EQUAL,"equals","equals",-1) ,"Undefined variable");
-            }
-        return rhsExprVal; 
+        } else {
+            // throw undefined variable error
+            throw error(new Token(EQUAL, "equals", "equals", -1), "Undefined variable");
+        }
+        return rhsExprVal;
     }
 
-        public Void taskOnBlockStmt(Stmt.Block blockStmt) {
-            symTabManager.appendNewSymbolTable();
-            interpret(blockStmt.blockStmts);
-            symTabManager.removeSymbolTable();
-            return null; //yet to decide
+    public Void taskOnBlockStmt(Stmt.Block blockStmt) {
+        symTabManager.appendNewSymbolTable();
+        interpret(blockStmt.blockStmts);
+        symTabManager.removeSymbolTable();
+        return null; // yet to decide
+    }
+
+    public Void taskOnIfStmt(Stmt.If ifStmt) {
+        System.out.println("If mein agaye janaaab");
+        Object condition = interpret(ifStmt.expression);
+        if (isTruthy(condition)) {
+            ifStmt.takenStmt.accept(this);
+        } else {
+            ifStmt.notTakenStmt.accept(this);
         }
+        return null; // yet to decide if its right
+    }
 
 }

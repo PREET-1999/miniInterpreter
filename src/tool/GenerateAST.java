@@ -76,7 +76,15 @@ public class GenerateAST {
                                                 // new Field("blockStmts", "Stmt"), //this didnt work as only one
                                                 // statement was handled inside block, we want multiple alowed
                                                 new Field("blockStmts", "List<Stmt>")
+                                }),
+                                new ClassDef("If", new Field[] {
+                                                new Field("expression", "Expr"),
+                                                new Field("takenStmt", "Stmt"),
+                                                new Field("notTakenStmt", "Stmt"),
+
+
                                 }));
+
                 generateAST(outputDir, "Stmt", stmtTypes);
 
                 // Now for Decl

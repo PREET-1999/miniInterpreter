@@ -131,10 +131,26 @@ public class Parser {
             return printStatement();
 
         if (matchThenStep(LEFT_BRACE)) {
-           return blockStatement();
+            return blockStatement();
+        }
+        if (matchThenStep(IF)) {
+            return ifStatement();
+
         }
 
         return expressionStatement();
+    }
+
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expected opening brace.");
+        Expr expr = expression();
+        consume(RIGHT_PAREN, "Expected closng brace.");
+        Stmt taken = statement();
+        Stmt notTaken = null;
+        if(matchThenStep(ELSE)){
+            notTaken = statement();
+        }
+        return new Stmt.If(expr,taken,notTaken);
     }
 
     private Stmt blockStatement() {
