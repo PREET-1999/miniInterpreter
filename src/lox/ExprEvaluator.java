@@ -121,6 +121,14 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object taskOnBinaryExpr(Expr.Binary expr) {
+
+        //for and and or, we dont have to evaluate both apriori
+        //so this is some inconsistency to handle and and or specially
+
+
+
+
+
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);
 
@@ -172,6 +180,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return (double) left / (double) right;
             case STAR:
                 return (double) left * (double) right;
+                
         }
         return 100;// will it even reach here?? (yes if it matches none of the above)
 

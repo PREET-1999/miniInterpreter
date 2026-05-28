@@ -26,7 +26,9 @@ block          → "{" declaration* "}" ";"  ;
 
 expression     → assignment;
 assignment     → IDENTIFIER "=" assignment
-               | equality
+               | logic_or;
+logic_or       → logic_and ("or" logic_and)*;
+logic_and      →  equality ( "and" equality)*;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
@@ -147,10 +149,10 @@ public class Parser {
         consume(RIGHT_PAREN, "Expected closng brace.");
         Stmt taken = statement();
         Stmt notTaken = null;
-        if(matchThenStep(ELSE)){
+        if (matchThenStep(ELSE)) {
             notTaken = statement();
         }
-        return new Stmt.If(expr,taken,notTaken);
+        return new Stmt.If(expr, taken, notTaken);
     }
 
     private Stmt blockStatement() {
@@ -196,7 +198,27 @@ public class Parser {
         // return new Expr.Assign(id, rhs);
         // }
 
-        return equality();
+        return logicalOr();
+    }
+
+    private Expr logicalOr() {
+        Expr expr = logicalAnd();
+        while(matchThenStep(OR)){
+            Token op = previous();
+            Expr rightOperand = logicalAnd();
+            expr = new Expr.Binary(expr, op, rightOperand);
+        }
+        return expr;
+    }
+
+    private Expr logicalAnd() {
+        Expr expr = equality();
+        while(matchThenStep(AND)){
+            Token op = previous();
+            Expr rightOperand = equality();
+            expr = new Expr.Binary(expr, op, rightOperand);
+        }
+        return expr;
     }
 
     // equality → comparison ( ( "!=" | "==" ) comparison )* ;
