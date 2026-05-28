@@ -9,6 +9,7 @@ abstract class Stmt {
         R taskOnVarDeclStmt(VarDecl stmt);
         R taskOnBlockStmt(Block stmt);
         R taskOnIfStmt(If stmt);
+        R taskOnWhileStmt(While stmt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -77,6 +78,20 @@ abstract class Stmt {
             this.expression = expression;
             this.takenStmt = takenStmt;
             this.notTakenStmt = notTakenStmt;
+        }
+    }
+    static class While extends Stmt {
+        final Expr expression;
+        final Stmt whileStmt;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnWhileStmt(this);
+        }
+        While(Expr expression, Stmt whileStmt) {
+            this.expression = expression;
+            this.whileStmt = whileStmt;
         }
     }
 }

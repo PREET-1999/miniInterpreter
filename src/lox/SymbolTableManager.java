@@ -31,7 +31,7 @@ public class SymbolTableManager {
     }
 
     boolean containsSymbol(String key){
-        return currentSymbolTable.containsSymbol(key);
+        return (getSymbol(key) != null);
     }
 
 }

@@ -15,6 +15,13 @@ statement      → exprStmt
                | printStmt ;
                | block
                | ifStmt
+               | whileStmt
+               | forStmt
+
+forStmt        → "for" "(" (varDecl | expression | ";")    expression? ";"    expression? ")"  statement ; 
+
+whileStmt      → "while" "(" expression ")" statement
+
 
 
 ifStmt         → "if" "(" expression ")" statement
@@ -140,9 +147,19 @@ public class Parser {
 
         }
 
+        if (matchThenStep(WHILE)) {
+            return whileStatement();
+
+        }
         return expressionStatement();
     }
-
+ private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expected opening brace.");
+        Expr expr = expression();
+        consume(RIGHT_PAREN, "Expected closng brace.");
+        Stmt stmt = statement();
+        return new Stmt.While(expr, stmt);
+    }
     private Stmt ifStatement() {
         consume(LEFT_PAREN, "Expected opening brace.");
         Expr expr = expression();
@@ -206,7 +223,7 @@ public class Parser {
         while(matchThenStep(OR)){
             Token op = previous();
             Expr rightOperand = logicalAnd();
-            expr = new Expr.Binary(expr, op, rightOperand);
+            expr = new Expr.Logical(expr, op, rightOperand);
         }
         return expr;
     }
@@ -216,7 +233,7 @@ public class Parser {
         while(matchThenStep(AND)){
             Token op = previous();
             Expr rightOperand = equality();
-            expr = new Expr.Binary(expr, op, rightOperand);
+            expr = new Expr.Logical(expr, op, rightOperand);
         }
         return expr;
     }

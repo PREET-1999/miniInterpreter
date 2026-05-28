@@ -36,6 +36,11 @@ public class GenerateAST {
                                                 new Field("operator", "Token"),
                                                 new Field("right", "Expr")
                                 }),
+                                new ClassDef("Logical", new Field[] {
+                                                new Field("left", "Expr"),
+                                                new Field("operator", "Token"),
+                                                new Field("right", "Expr")
+                                }),
                                 new ClassDef("Grouping", new Field[] {
                                                 new Field("expression", "Expr")
                                 }),
@@ -83,7 +88,15 @@ public class GenerateAST {
                                                 new Field("notTakenStmt", "Stmt"),
 
 
-                                }));
+                                }),
+                                new ClassDef("While", new Field[] {
+                                                new Field("expression", "Expr"),
+                                                new Field("whileStmt", "Stmt"),
+
+                                })
+                        
+                        
+                        );
 
                 generateAST(outputDir, "Stmt", stmtTypes);
 

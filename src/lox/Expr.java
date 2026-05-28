@@ -5,6 +5,7 @@ import java.util.ArrayList;
 abstract class Expr {
     interface Visitor<R> {
         R taskOnBinaryExpr(Binary expr);
+        R taskOnLogicalExpr(Logical expr);
         R taskOnGroupingExpr(Grouping expr);
         R taskOnLiteralExpr(Literal expr);
         R taskOnUnaryExpr(Unary expr);
@@ -24,6 +25,22 @@ abstract class Expr {
             return visitor.taskOnBinaryExpr(this);
         }
         Binary(Expr left, Token operator, Expr right) {
+            this.left = left;
+            this.operator = operator;
+            this.right = right;
+        }
+    }
+    static class Logical extends Expr {
+        final Expr left;
+        final Token operator;
+        final Expr right;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnLogicalExpr(this);
+        }
+        Logical(Expr left, Token operator, Expr right) {
             this.left = left;
             this.operator = operator;
             this.right = right;

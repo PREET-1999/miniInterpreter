@@ -122,13 +122,6 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public Object taskOnBinaryExpr(Expr.Binary expr) {
 
-        //for and and or, we dont have to evaluate both apriori
-        //so this is some inconsistency to handle and and or specially
-
-
-
-
-
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);
 
@@ -180,9 +173,30 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return (double) left / (double) right;
             case STAR:
                 return (double) left * (double) right;
-                
+
         }
         return 100;// will it even reach here?? (yes if it matches none of the above)
+
+    }
+
+    public Object taskOnLogicalExpr(Expr.Logical expr) {
+
+        Object leftOperand = expr.left.accept(this);
+
+        if (expr.operator.type == TokenType.OR) {
+            // OR
+            if (isTruthy(leftOperand)) { // left T, return it
+                return leftOperand;
+            }
+        } else {
+            // AND
+            if (!isTruthy(leftOperand))
+                return leftOperand; // left F, return it
+        }
+
+        Object rightOperand = expr.right.accept(this);
+
+        return rightOperand;
 
     }
 
@@ -253,13 +267,21 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Void taskOnIfStmt(Stmt.If ifStmt) {
-        System.out.println("If mein agaye janaaab");
         Object condition = interpret(ifStmt.expression);
         if (isTruthy(condition)) {
             ifStmt.takenStmt.accept(this);
-        } else {
+        } else if(ifStmt.notTakenStmt != null){
             ifStmt.notTakenStmt.accept(this);
         }
+        return null; // yet to decide if its right
+    }
+
+    public Void taskOnWhileStmt(Stmt.While whileStatement) {
+        Object condition = interpret(whileStatement.expression);
+        if (isTruthy(condition)) {
+            whileStatement.whileStmt.accept(this);
+        }
+
         return null; // yet to decide if its right
     }
 

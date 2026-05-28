@@ -1,0 +1,10 @@
+var a = true;
+var count  = 10;
+while(a){
+    print "hi";
+    var cond = count <= 0;
+    if(cond)
+    a = false;
+    print count;
+    count = count - 1;
+}
