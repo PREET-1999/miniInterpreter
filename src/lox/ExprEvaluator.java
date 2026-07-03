@@ -227,15 +227,16 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (val instanceof Token) {
             String valId = ((Token) val).lexeme;
             val = symTabManager.getSymbol(valId);
+            // System.out.println("in taskOnLiteral got "+val);
             if (val == null) {
-
+                System.out.println("undef var " + valId);
                 // throw undefined variable error
                 throw error(new Token(PRINT, "print", "print", -1), "Undefined variable");
 
             }
         }
         // System.out.println("In rtaskOnLiteral " + val);
-
+        System.out.println("returning literal " + val);
         return val;
 
     }
@@ -246,15 +247,16 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object taskOnAssignExpr(Expr.Assign expr) {
-        // System.out.println("ASSIGN KA KYA KRNA HAI?");
+        System.out.println("ASSIGN KA KYA KRNA HAI?");
         Object rhsExprVal = interpret(expr.rhsExpr);
         // store this value to the symtab entry only if it was defined
         if (symTabManager.containsSymbol(expr.leftId.lexeme)) {
+            System.out.println("storing " + expr.leftId.lexeme + " <--- " + rhsExprVal);
             symTabManager.addSymbol(expr.leftId.lexeme, rhsExprVal);
 
         } else {
             // throw undefined variable error
-            throw error(new Token(EQUAL, "equals", "equals", -1), "Undefined variable");
+            throw error(new Token(EQUAL, "equals", "equals", -1), "Undefined variable Assign");
         }
         return rhsExprVal;
     }
@@ -270,15 +272,27 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object condition = interpret(ifStmt.expression);
         if (isTruthy(condition)) {
             ifStmt.takenStmt.accept(this);
-        } else if(ifStmt.notTakenStmt != null){
+        } else if (ifStmt.notTakenStmt != null) {
             ifStmt.notTakenStmt.accept(this);
         }
         return null; // yet to decide if its right
     }
 
     public Void taskOnWhileStmt(Stmt.While whileStatement) {
-        Object condition = interpret(whileStatement.expression);
-        if (isTruthy(condition)) {
+
+        // lets say I decide to implement for usnig while
+        // while.expression can be null, while.whilestmt can be null
+        if (whileStatement.expression == null) {
+            return null; //i decide to treat no condition as false
+        }
+
+        // no stmt, so not processing whileStmt..maybe check the placement of this code
+        if (whileStatement.whileStmt == null)
+            return null;
+
+
+        //normal while
+        while (isTruthy(interpret(whileStatement.expression))) {
             whileStatement.whileStmt.accept(this);
         }
 

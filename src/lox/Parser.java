@@ -3,6 +3,8 @@ package src.lox;
 import static src.lox.TokenType.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
+
 /*
 program        → declaration* EOF ;
 
@@ -18,7 +20,7 @@ statement      → exprStmt
                | whileStmt
                | forStmt
 
-forStmt        → "for" "(" (varDecl | expression | ";")    expression? ";"    expression? ")"  statement ; 
+forStmt        → "for" "(" (varDecl | exprStmt | ";")  expression? ";" expression? ")"statement ;  //exprStmt hai expression nai
 
 whileStmt      → "while" "(" expression ")" statement
 
@@ -151,15 +153,65 @@ public class Parser {
             return whileStatement();
 
         }
+
+        if (matchThenStep(FOR)) {
+            return forStatement();
+        }
         return expressionStatement();
     }
- private Stmt whileStatement() {
+
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expected opening brace.");
+        Stmt initializer = null;
+        if (matchThenStep(SEMICOLON)) {
+            // empoty initilizer
+        } else {
+            if (matchThenStep(VAR)) {
+                initializer = varDecl();
+            } else { // it must be an expr stmt
+                initializer = expressionStatement();
+            }
+            // consume(SEMICOLON, "Expected seperator.");
+
+        }
+        System.out.println("Initializer zaala");
+        Expr condition = null;
+        if (matchThenStep(SEMICOLON)) {
+            // empoty consition
+        } else {
+            condition = expression();
+            consume(SEMICOLON, "Expected seperator.");
+
+        }
+        System.out.println("Condition zaala");
+        System.out.println(previous());
+        Expr increment = null;
+
+        if (matchThenStep(RIGHT_PAREN)) {
+            // empoty increment
+        } else {
+            System.out.println("increment cha else");
+            increment = expression();
+                        // consume(SEMICOLON, "Expected seperator.");
+
+        consume(RIGHT_PAREN, "Expected closing brace.");
+
+        }
+        // consume(RIGHT_PAREN, "Expected closing brace.");
+        System.out.println("Increment zaala");
+
+        Stmt stmt = statement();
+        return new Stmt.While(condition, stmt);
+    }
+
+    private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expected opening brace.");
         Expr expr = expression();
         consume(RIGHT_PAREN, "Expected closng brace.");
         Stmt stmt = statement();
         return new Stmt.While(expr, stmt);
     }
+
     private Stmt ifStatement() {
         consume(LEFT_PAREN, "Expected opening brace.");
         Expr expr = expression();
@@ -220,7 +272,7 @@ public class Parser {
 
     private Expr logicalOr() {
         Expr expr = logicalAnd();
-        while(matchThenStep(OR)){
+        while (matchThenStep(OR)) {
             Token op = previous();
             Expr rightOperand = logicalAnd();
             expr = new Expr.Logical(expr, op, rightOperand);
@@ -230,7 +282,7 @@ public class Parser {
 
     private Expr logicalAnd() {
         Expr expr = equality();
-        while(matchThenStep(AND)){
+        while (matchThenStep(AND)) {
             Token op = previous();
             Expr rightOperand = equality();
             expr = new Expr.Logical(expr, op, rightOperand);

@@ -25,6 +25,10 @@ public class ASTPrinter implements Expr.Visitor<String> {
         return wrapInParantheses(tokenName, leftExprName, RightExprName);
     }
 
+    public String taskOnLogicalExpr(Expr.Logical expr) {
+       return "LOGICAL";
+    }
+
     public String taskOnUnaryExpr(Expr.Unary expr) {
         String tokenName = expr.operator.lexeme;
         String exprName = expr.right.accept(this);
