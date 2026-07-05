@@ -179,12 +179,13 @@ public class Parser {
         if (matchThenStep(SEMICOLON)) {
             // empoty consition
         } else {
+            System.out.println("found some condition");
+
             condition = expression();
-            consume(SEMICOLON, "Expected seperator.");
+            consume(SEMICOLON, "Expected seperator.");//as expression doesnt consume ';'
 
         }
         System.out.println("Condition zaala");
-        System.out.println(previous());
         Expr increment = null;
 
         if (matchThenStep(RIGHT_PAREN)) {
@@ -192,7 +193,7 @@ public class Parser {
         } else {
             System.out.println("increment cha else");
             increment = expression();
-                        // consume(SEMICOLON, "Expected seperator.");
+            // consume(SEMICOLON, "Expected seperator.");
 
         consume(RIGHT_PAREN, "Expected closing brace.");
 
@@ -201,7 +202,28 @@ public class Parser {
         System.out.println("Increment zaala");
 
         Stmt stmt = statement();
-        return new Stmt.While(condition, stmt);
+        if(stmt instanceof Stmt.Block){
+            System.out.println("Block hai ab");
+            System.out.println(((Stmt.Block)stmt).blockStmts.size());
+            if(increment!=null)
+            ((Stmt.Block)stmt).blockStmts.add(new Stmt.Expression(increment));
+            System.out.println(((Stmt.Block)stmt).blockStmts.size());
+
+
+        }
+        else{
+
+        }
+
+        Stmt forBlock = stmt;
+        if(initializer!=null){
+                    List<Stmt> blockstmts = new ArrayList<>();
+                    blockstmts.add(initializer);
+                    blockstmts.add(new Stmt.While(condition, stmt));
+                    forBlock = new Stmt.Block(blockstmts);
+        }
+       
+        return forBlock;
     }
 
     private Stmt whileStatement() {
@@ -471,7 +493,6 @@ public class Parser {
                 case IF:
                 case WHILE:
                 case PRINT:
-                case RETURN:
                     return;
             }
 

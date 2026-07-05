@@ -8,14 +8,14 @@ public class SymbolTableManager {
     }
 
     void appendNewSymbolTable() {
-        System.out.println("appending new SymTab");
+        // System.out.println("appending new SymTab");
         SymbolTable symTab = new SymbolTable();
         symTab.next = currentSymbolTable;
         currentSymbolTable = symTab;
     }
 
     void removeSymbolTable() {
-        System.out.println("removing  SymTab");
+        // System.out.println("removing  SymTab");
         currentSymbolTable = currentSymbolTable.next;
     }
 
@@ -31,11 +31,25 @@ public class SymbolTableManager {
     }
 
     void addSymbol(String key, Object value) {
+        // incorrect if the key is in some other symTab, so commenting
+        // currentSymbolTable.putSymTabEntry(key, value);
+        if (containsSymbol(key)) {
+            SymbolTable searchingInTable = currentSymbolTable;
+            while (searchingInTable != null) {
+                if (searchingInTable.containsSymbol(key)) {
+                    searchingInTable.putSymTabEntry(key, value);
+                    break;
+                }
+                searchingInTable = searchingInTable.next;
+            }
+        }
+
         currentSymbolTable.putSymTabEntry(key, value);
+
+
     }
 
     boolean containsSymbol(String key) {
         return (getSymbol(key) != null);
     }
-
 }

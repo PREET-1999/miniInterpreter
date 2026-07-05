@@ -31,10 +31,12 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object interpret(Expr expr) {
+        //do we want this snippet here???
         if (symTabManager == null) {
             symTabManager = new SymbolTableManager();
             symTabManager.appendNewSymbolTable(); // for the global scope
         }
+
         try {
             // System.out.println("Exp eval start....");
             // System.out.println( expr.accept(this) );
@@ -47,7 +49,12 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public void interpret(List<Stmt> stmts) {
-
+        //do we want this snippet in interpret(Expr expr) also???
+        if (symTabManager == null) {
+            symTabManager = new SymbolTableManager();
+            symTabManager.appendNewSymbolTable(); // for the global scope
+        }
+        
         try {
             // System.out.println("Exp eval start....");
             // System.out.println( );
@@ -236,7 +243,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         }
         // System.out.println("In rtaskOnLiteral " + val);
-        System.out.println("returning literal " + val);
+        // System.out.println("returning literal " + val);
         return val;
 
     }
@@ -247,11 +254,11 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Object taskOnAssignExpr(Expr.Assign expr) {
-        System.out.println("ASSIGN KA KYA KRNA HAI?");
+        // System.out.println("ASSIGN KA KYA KRNA HAI?");
         Object rhsExprVal = interpret(expr.rhsExpr);
         // store this value to the symtab entry only if it was defined
         if (symTabManager.containsSymbol(expr.leftId.lexeme)) {
-            System.out.println("storing " + expr.leftId.lexeme + " <--- " + rhsExprVal);
+            // System.out.println("storing " + expr.leftId.lexeme + " <--- " + rhsExprVal);
             symTabManager.addSymbol(expr.leftId.lexeme, rhsExprVal);
 
         } else {
@@ -292,6 +299,7 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
 
         //normal while
+        
         while (isTruthy(interpret(whileStatement.expression))) {
             whileStatement.whileStmt.accept(this);
         }
