@@ -93,6 +93,12 @@ public class GenerateAST {
                                                 new Field("expression", "Expr"),
                                                 new Field("whileStmt", "Stmt"),
 
+                                }),
+                                new ClassDef("FuncDecl", new Field[] {
+                                                new Field("funcId", "Token"),
+                                                new Field("args", "List<Token>"),
+                                                new Field("funcBody", "Stmt"),
+
                                 })
                         
                         

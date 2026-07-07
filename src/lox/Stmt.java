@@ -10,6 +10,7 @@ abstract class Stmt {
         R taskOnBlockStmt(Block stmt);
         R taskOnIfStmt(If stmt);
         R taskOnWhileStmt(While stmt);
+        R taskOnFuncDeclStmt(FuncDecl stmt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -92,6 +93,22 @@ abstract class Stmt {
         While(Expr expression, Stmt whileStmt) {
             this.expression = expression;
             this.whileStmt = whileStmt;
+        }
+    }
+    static class FuncDecl extends Stmt {
+        final Token funcId;
+        final List<Token> args;
+        final Stmt funcBody;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnFuncDeclStmt(this);
+        }
+        FuncDecl(Token funcId, List<Token> args, Stmt funcBody) {
+            this.funcId = funcId;
+            this.args = args;
+            this.funcBody = funcBody;
         }
     }
 }

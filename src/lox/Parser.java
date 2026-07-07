@@ -9,8 +9,12 @@ import java.util.Arrays;
 program        → declaration* EOF ;
 
 declaration    → varDecl
-               | statement ;
-               
+               | statement 
+               | funcDecl ;
+
+funcDecl       → "fun" IDENTIFIER "("  (argList)? ")" statement;
+
+argList        → IDENTIFIER (, IDENTIFIER)*
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
@@ -98,10 +102,40 @@ public class Parser {
             // System.out.println("var toh mila hai");
             return varDecl();
         }
+        if( matchThenStep(FUN)){
+            return funcDecl();
+        }
         return statement();
 
-    }
 
+    }
+    private Stmt funcDecl(){
+        Token id = consume(IDENTIFIER, "Expect variable name.");
+        consume(LEFT_PAREN, "Expected opening paranthese.");
+
+        //for argLst
+        List<Token> argList = argList();
+        consume(RIGHT_PAREN, "Expected clsing paranthese.");
+        Stmt body = statement();
+        return new Stmt.FuncDecl(id,argList,body);
+
+    }
+    private List<Token> argList(){
+        List<Token> args = new ArrayList<>();
+        if(!checkTokenType(RIGHT_PAREN)){
+            Token arg = consume(IDENTIFIER, "expected param name");
+            args.add(arg);
+    
+        }
+        while(!checkTokenType(RIGHT_PAREN)){
+            consume(COMMA, "expected seperator between args");
+            Token arg = consume(IDENTIFIER, "expected param name");
+;
+            args.add(arg);
+        }
+        System.out.println("decl has " + args.size() + " explicit args");
+        return args;
+    }
     private Stmt varDecl() {
 
         Token id = consume(IDENTIFIER, "Expect variable name.");
