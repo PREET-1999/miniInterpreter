@@ -308,7 +308,12 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public Void taskOnFuncDeclStmt(Stmt.FuncDecl funcDeclStmt){
-        System.out.println("lets func it...");
+        System.out.println("lets func it func(){}   ...");
+        return null;
+    }
+
+    public Void taskOnCallExpr(Expr.Call callExpr){
+        System.out.println("lets call the func func();   ...");
         return null;
     }
 

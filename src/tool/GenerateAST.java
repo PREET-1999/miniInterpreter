@@ -58,6 +58,11 @@ public class GenerateAST {
                                                 new Field("leftId", "Token"),
                                                 new Field("rhsExpr", "Expr")
 
+                                }),
+                                new ClassDef("Call", new Field[] {
+                                                new Field("arguments", "List<Expr>"),
+                                                new Field("callee", "Expr")
+
                                 })
 
                 );

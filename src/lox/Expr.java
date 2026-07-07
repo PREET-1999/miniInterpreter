@@ -10,6 +10,7 @@ abstract class Expr {
         R taskOnLiteralExpr(Literal expr);
         R taskOnUnaryExpr(Unary expr);
         R taskOnAssignExpr(Assign expr);
+        R taskOnCallExpr(Call expr);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -96,6 +97,20 @@ abstract class Expr {
         Assign(Token leftId, Expr rhsExpr) {
             this.leftId = leftId;
             this.rhsExpr = rhsExpr;
+        }
+    }
+    static class Call extends Expr {
+        final List<Expr> arguments;
+        final Expr callee;
+
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.taskOnCallExpr(this);
+        }
+        Call(List<Expr> arguments, Expr callee) {
+            this.arguments = arguments;
+            this.callee = callee;
         }
     }
 }

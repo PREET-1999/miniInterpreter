@@ -55,4 +55,8 @@ public class ASTPrinter implements Expr.Visitor<String> {
      public String taskOnAssignExpr(Expr.Assign expr) {
         return "ASSIGN"; //yet to write
     }
+
+    public String taskOnCallExpr(Expr.Call expr) {
+        return "CALL"; //yet to write
+    }
 }

@@ -14,7 +14,7 @@ declaration    → varDecl
 
 funcDecl       → "fun" IDENTIFIER "("  (argList)? ")" statement;
 
-argList        → IDENTIFIER (, IDENTIFIER)*
+argList        → IDENTIFIER ( "," IDENTIFIER)*
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
@@ -47,7 +47,9 @@ comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
-               | primary ;
+               | call ;
+call           → primary ( "(" arguments? ")" )*
+arguments      → expression ( "," expression)*
 primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" 
                | IDENTIFIER;
@@ -116,9 +118,14 @@ public class Parser {
         //for argLst
         List<Token> argList = argList();
         consume(RIGHT_PAREN, "Expected clsing paranthese.");
-        Stmt body = statement();
-        return new Stmt.FuncDecl(id,argList,body);
 
+        // fun foo()
+        //     a + 1;   
+        //
+        // isnt allowed, a '{ }' is necessary for function
+        consume(LEFT_BRACE, "expected opening brace");
+        Stmt body = blockStatement();
+        return new Stmt.FuncDecl(id,argList,body);
     }
     private List<Token> argList(){
         List<Token> args = new ArrayList<>();
@@ -415,7 +422,39 @@ public class Parser {
             return new Expr.Unary(operator, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    // unary          → ( "!" | "-" ) unary
+    //            | call ;
+    // call           → primary ( "(" arguments? ")" )*
+    private Expr call(){
+        Expr callee =  primary();
+
+        while(matchThenStep(LEFT_PAREN)){
+            callee = buildCallNodeWithCalleeAndArguments(callee);
+
+        }
+
+        return callee;
+
+        
+    }
+    private Expr buildCallNodeWithCalleeAndArguments(Expr callee){
+        List<Expr> args = new ArrayList<>();
+        if(!checkTokenType(RIGHT_PAREN)){
+            Expr arg = expression();
+            args.add(arg);
+    
+        }
+        while(!checkTokenType(RIGHT_PAREN)){
+            consume(COMMA, "expected seperator between args");
+             Expr arg = expression();
+            args.add(arg);
+        }
+        consume(RIGHT_PAREN, "Expected clsing paranthese.");
+
+        return new Expr.Call(args, callee);
     }
 
     // primary → NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER
