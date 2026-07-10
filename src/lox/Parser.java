@@ -125,7 +125,9 @@ public class Parser {
         // isnt allowed, a '{ }' is necessary for function
         consume(LEFT_BRACE, "expected opening brace");
         Stmt body = blockStatement();
-        return new Stmt.FuncDecl(id,argList,body);
+        Stmt funcDeclRef = new Stmt.FuncDecl(id,argList,body);
+        FunctionTableManager.func = funcDeclRef;
+        return funcDeclRef;
     }
     private List<Token> argList(){
         List<Token> args = new ArrayList<>();

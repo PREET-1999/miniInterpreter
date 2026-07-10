@@ -309,11 +309,44 @@ public class ExprEvaluator implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public Void taskOnFuncDeclStmt(Stmt.FuncDecl funcDeclStmt){
         System.out.println("lets func it func(){}   ...");
+        
         return null;
+
     }
 
     public Void taskOnCallExpr(Expr.Call callExpr){
         System.out.println("lets call the func func();   ...");
+        //just checkng if this works
+        Stmt.FuncDecl funcDeclNode = (Stmt.FuncDecl)FunctionTableManager.func;
+
+        //lets bind args and params
+        //first get the args....
+        List<Expr> args = callExpr.arguments;
+        // for(int i = 0;i < args.size();i++){
+        //     System.out.println(interpret(args.get(i)));
+
+        // }
+
+        //adding symTab for Function...
+        symTabManager.appendNewSymbolTable();
+
+        //mapping params to args and adding in the symTab
+        List<Token> params = funcDeclNode.args;
+        for(int i = 0;i < params.size();i++){
+            // System.out.println(interpret(params.get(i)));
+            symTabManager.addSymbol(params.get(i).lexeme, interpret(args.get(i)));
+
+        }
+
+
+        funcDeclNode.funcBody.accept(this);
+
+
+
+        //removing after func call
+        symTabManager.removeSymbolTable();
+
+        
         return null;
     }
 
